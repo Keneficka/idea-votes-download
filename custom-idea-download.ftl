@@ -43,7 +43,6 @@
         var offset = 0
 
         var generateButton = document.getElementById('generate-csv-button-ak');
-        var infoPanel = document.getElementById('info-panel-ak');
             
         generateButton.addEventListener("click", function () {
             generateButton.disabled = true;
@@ -75,7 +74,7 @@
         function getVotesList() {
             while (isMore) {
                 var apiCallString = "/api/2.0/search";
-                var bodyString = '[{"messages":{"fields":["board.title","subject","status","kudos"],"constraints":[{"board.id":{"in":['+ boardListString +']},"kudos.sum(weight)":{">":0},"depth":0}],"limit":5,"offset":'+ offset +',"subQueries":{"kudos":{"fields":["time","user.email"]}}}}]';
+                var bodyString = '[{"messages":{"fields":["board.title","subject","status","kudos"],"constraints":[{"board.id":{"in":['+ boardListString +']},"kudos.sum(weight)":{">":0},"depth":0}],"limit":1000,"offset":'+ offset +',"subQueries":{"kudos":{"fields":["time","user.email"]}}}}]';
                 var getVoteListReq = new XMLHttpRequest();
                 getVoteListReq.open("POST", apiCallString, false);
                 getVoteListReq.setRequestHeader('Content-type', 'application/json');
@@ -86,7 +85,7 @@
                     if (size > 0){
                         console.log(resp.data.items);
                         voteList = voteList.concat(resp.data.items);
-                        offset += 5;
+                        offset += 1000;
                     }
                     else{
                         isMore = false;
@@ -116,7 +115,9 @@
 
                 for (j = 0; j < voteList[i].kudos.items.length; j++) {
                     //format date for csv
-                    var formattedDate = '"' + voteList[i].kudos.items[j].time + '"';
+                    var date = new Date(voteList[i].kudos.items[j].time);
+                    var formattedDate = (((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())) + '/' + date.getFullYear());
+                    //var formattedDate = '"' + voteList[i].kudos.items[j].time + '"';
 
                     csvFile += (voteList[i].board.title + "," + formattedSubject + "," + status + "," + voteList[i].kudos.items[j].user.email + "," + formattedDate + "\r\n");
                 }
