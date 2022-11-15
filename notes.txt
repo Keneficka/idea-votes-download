@@ -1,0 +1,42 @@
+Custom page URL
+/t5/custom/page/page-id/ideavotesdownload
+
+API request:
+https://community.ptc.com/api/2.0/search
+
+[
+    {
+        "messages":{
+            "fields":[
+            "board.title",
+            "subject",
+            "status",
+            "kudos"
+            ],
+            "constraints":[
+                {
+                    "board.id":{
+                        "in":[
+                            "esupportIdeas",
+                            "PTCMathcadIdeas"
+                        ]
+                    },
+                    "kudos.sum(weight)":{
+                        ">":0
+                    },
+                    "depth":0
+                }
+            ],
+            "limit":1000,
+            "offset":0,
+            "subQueries":{
+                "kudos":{             
+                    "fields":[               
+                        "time",               
+                        "user.email"             
+                    ]           
+                }
+            }
+        }
+    }
+]
