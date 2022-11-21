@@ -74,7 +74,7 @@
         function getVotesList() {
             while (isMore) {
                 var apiCallString = "/api/2.0/search";
-                var bodyString = '[{"messages":{"fields":["board.title","subject","status","kudos"],"constraints":[{"board.id":{"in":['+ boardListString +']},"kudos.sum(weight)":{">":0},"depth":0}],"limit":1000,"offset":'+ offset +',"subQueries":{"kudos":{"fields":["time","user.email"]}}}}]';
+                var bodyString = '[{"messages":{"fields":["board.title","subject","status","view_href","author.login","post_time","kudos"],"constraints":[{"board.id":{"in":['+ boardListString +']},"kudos.sum(weight)":{">":0},"depth":0}],"limit":1000,"offset":'+ offset +',"subQueries":{"kudos":{"fields":["time","user.email","user.login"]}}}}]';
                 var getVoteListReq = new XMLHttpRequest();
                 getVoteListReq.open("POST", apiCallString, false);
                 getVoteListReq.setRequestHeader('Content-type', 'application/json');
@@ -98,7 +98,7 @@
         }
 
         function createCsvDownload() {
-            csvFile = 'Board,Idea,Status,Email,Date\r\n';
+            csvFile = 'Board,Idea,Idea URL,Author,Post Date,Status,Voter,Email,Vote Date\r\n';
 
             for (i = 0; i < voteList.length; i++) {
                 //format subject for csv
@@ -110,8 +110,13 @@
                 if (voteList[i].status) {
                     var status = voteList[i].status.name;
                 } else {
-                    var status = "No Status";
+                    var status = "Unspecified";
                 }
+
+                //format post date
+                var postDate = new Date(voteList[i].post_time);
+                var formattedPostDate = (((postDate.getMonth() > 8) ? (postDate.getMonth() + 1) : ('0' + (postDate.getMonth() + 1))) + '/' + ((postDate.getDate() > 9) ? postDate.getDate() : ('0' + postDate.getDate())) + '/' + postDate.getFullYear());
+                
 
                 for (j = 0; j < voteList[i].kudos.items.length; j++) {
                     //format date for csv
@@ -119,7 +124,7 @@
                     var formattedDate = (((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())) + '/' + date.getFullYear());
                     //var formattedDate = '"' + voteList[i].kudos.items[j].time + '"';
 
-                    csvFile += (voteList[i].board.title + "," + formattedSubject + "," + status + "," + voteList[i].kudos.items[j].user.email + "," + formattedDate + "\r\n");
+                    csvFile += (voteList[i].board.title + "," + formattedSubject + "," + voteList[i].view_href + "," + voteList[i].author.login + "," + formattedPostDate + "," + status + "," + voteList[i].kudos.items[j].user.login + "," + voteList[i].kudos.items[j].user.email + "," + formattedDate + "\r\n");
                 }
             }
 
