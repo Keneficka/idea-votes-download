@@ -1,0 +1,54 @@
+Custom page URL
+/t5/custom/page/page-id/ideavotesdownload
+
+API request:
+https://community.ptc.com/api/2.0/search
+
+[
+    {
+        "messages":{
+            "fields":[
+            "board.title",
+            "subject",
+            "status",
+            "kudos"
+            ],
+            "constraints":[
+                {
+                    "board.id":{
+                        "in":[
+                            "esupportIdeas",
+                            "PTCMathcadIdeas"
+                        ]
+                    },
+                    "kudos.sum(weight)":{
+                        ">":0
+                    },
+                    "depth":0
+                }
+            ],
+            "limit":1000,
+            "offset":0,
+            "subQueries":{
+                "kudos":{             
+                    "fields":[               
+                        "time",               
+                        "user.email"             
+                    ]           
+                }
+            }
+        }
+    }
+]
+
+
+When you get a chance, and if possible, can you please add 3 columns
+-	One with the SSO ID of the author of the idea (title “Author SSO ID”)
+-	Another with the voter’s. (title “Voter SSO ID”)
+I used the name to match some data with complete list of the Community members have. But the names are sometimes a problem as they contain non ASCII characters in one list and converted characters in another. SSO ID should be less problematic to use. 
+-	A third with the email of the author of the idea (title “Author Email”)
+
+Also , if possible, pls change the column title 
+-	“Author“ to “Idea Author”
+-	“Post Date” to “Idea Date”
+-	“Email” to “Voter Email”
