@@ -16,13 +16,17 @@
     <#--PAGE TITLE-->
 
     <#--BOARD LIST-->
-    <#assign boardList = liql("SELECT title, id FROM boards WHERE conversation_style = 'idea'").data.items />
+    <#assign boardList = liql("SELECT title, id, parent_category.title FROM boards WHERE conversation_style = 'idea' LIMIT 999").data.items />
 
     <ul>
         <#list boardList as board>
             <li>
                 <input type="checkbox" name="${board.id}" value="${board.id}" class="board-checkbox-ak">
-                <label for="${board.id}">${board.title}</label>
+                <#if board.title == "Ideas">
+                    <label for="${board.id}">${board.title} [${board.parent_category.title}]</label>
+                <#else>
+                    <label for="${board.id}">${board.title}</label>
+                </#if>
             </li>
         </#list>
     </ul>
