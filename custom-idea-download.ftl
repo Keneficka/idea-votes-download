@@ -39,7 +39,7 @@
 
     <@liaAddScript>
     ;(function($) {
-        //START
+        <#--  <script>  -->
         var boardList = [];
         var boardListString
         var voteList = [];
@@ -144,8 +144,13 @@
 
             var fileName = "Vote_Info";
 
+            //new blob method
+            var csvData = new Blob([csvFile], { type: 'text/csv' });
+            var csvUrl = URL.createObjectURL(csvData);
+
             var downloader = document.createElement('a');
-            downloader.setAttribute('href', 'data:text/csv;charset=utf-8,%EF%BB%BF' + encodeURIComponent(csvFile));
+            //downloader.setAttribute('href', 'data:text/csv;charset=utf-8,%EF%BB%BF' + encodeURIComponent(csvFile));
+            downloader.setAttribute('href', csvUrl);
             downloader.setAttribute('download', fileName);
             downloader.setAttribute('id',"ak-download-button");
             downloader.setAttribute('class',"lia-button lia-button-primary");
