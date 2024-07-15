@@ -16,7 +16,7 @@
     <#--PAGE TITLE-->
 
     <#--BOARD LIST-->
-    <#assign boardList = liql("SELECT title, id, parent_category.title FROM boards WHERE conversation_style = 'idea' LIMIT 999").data.items />
+    <#assign boardList = liql("SELECT title, id, parent_category.title FROM boards WHERE conversation_style = 'idea' ORDER BY topics.count(*) DESC LIMIT 999").data.items />
 
     <ul>
         <#list boardList as board>
