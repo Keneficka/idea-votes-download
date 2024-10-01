@@ -1,13 +1,17 @@
 <#--CHECK FOR ADMIN ROLE-->
 <#assign userRoles = (restBuilder().admin(true).liql("SELECT name FROM roles WHERE users.id = '${user.id?c}'").data.items)![]/>
 <#assign admin = "false">
+<#assign csm = "false">
 <#list userRoles as role>
     <#if role.name == "Administrator">
         <#assign admin = "true" />
     </#if>
+    <#if role.name == "CSM Access">
+        <#assign csm = "true" />
+    </#if>
 </#list>
 
-<#if admin == "true">
+<#if admin == "true" || csm == "true">
 
     <#--PAGE TITLE-->
     <div class="lia-page-header">
@@ -40,6 +44,7 @@
     <@liaAddScript>
     ;(function($) {
         <#--  <script>  -->
+        var csm = "${csm}";
         var boardList = [];
         var boardListString
         var voteList = [];
@@ -77,7 +82,7 @@
 
         function getVotesList() {
             while (isMore) {
-                var apiCallString = "/api/2.0/search";
+                var apiCallString = "/sejnu66972/plugins/custom/ptc/ptc1/idea-sort-page";
                 var bodyString = '[{"messages":{"fields":["board.title","subject","status","view_href","author.login","author.sso_id","author.email","post_time","kudos"],"constraints":[{"board.id":{"in":['+ boardListString +']},"kudos.sum(weight)":{">":0},"depth":0}],"limit":1000,"offset":'+ offset +',"subQueries":{"kudos":{"fields":["time","user.email","user.login","user.sso_id"]}}}}]';
                 var getVoteListReq = new XMLHttpRequest();
                 getVoteListReq.open("POST", apiCallString, false);
@@ -126,6 +131,14 @@
                 formattedAuthorLogin = formattedAuthorLogin.replaceAll('"', '""');
                 formattedAuthorLogin = '"' + formattedAuthorLogin + '"';
 
+                //author email address
+                var authorEmail;
+                if (csm == "false") {
+                    authorEmail = voteList[i].author.email
+                } else {
+                    authorEmail = (voteList[i].author.email.split("@"))[1];
+                }
+
 
                 for (j = 0; j < voteList[i].kudos.items.length; j++) {
                     //format voter login to "comma proof"
@@ -138,7 +151,15 @@
                     var formattedDate = (((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())) + '/' + date.getFullYear());
                     //var formattedDate = '"' + voteList[i].kudos.items[j].time + '"';
 
-                    csvFile += (voteList[i].board.title + "," + formattedSubject + "," + voteList[i].view_href + "," + formattedAuthorLogin + "," + voteList[i].author.sso_id + "," + voteList[i].author.email + "," + formattedPostDate + "," + status + "," + formattedVoterLogin + "," + voteList[i].kudos.items[j].user.sso_id + "," + voteList[i].kudos.items[j].user.email + "," + formattedDate + "\r\n");
+                    //voter email address
+                    var voterEmail;
+                    if (csm == "false") {
+                        voterEmail = voteList[i].kudos.items[j].user.email;
+                    } else {
+                        voterEmail = (voteList[i].kudos.items[j].user.email.split("@"))[1];
+                    }
+
+                    csvFile += (voteList[i].board.title + "," + formattedSubject + "," + voteList[i].view_href + "," + formattedAuthorLogin + "," + voteList[i].author.sso_id + "," + authorEmail + "," + formattedPostDate + "," + status + "," + formattedVoterLogin + "," + voteList[i].kudos.items[j].user.sso_id + "," + voterEmail + "," + formattedDate + "\r\n");
                 }
             }
 
